@@ -4,38 +4,18 @@ import torch
 from torchvision import transforms
 from efficientnet_pytorch import EfficientNet
 import pandas as pd
+import os
+import mysql.connector
 
-# 배너 이미지 추가를 위한 HTML 스타일 코드
-banner_style = """
-    <style>
-        .banner-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 300px;  # 원하는 높이로 조정하세요.
-        }
-        .banner-img {
-            max-width: 100%;
-        }
-    </style>
-"""
-
-# 배너 이미지 URL
-banner_image_url = 'https://ifh.cc/g/vbmRgR.jpg'
-# 배너 이미지 출력
-st.markdown('<p style="text-align:center;"><img src="%s" alt="Banner Image" width="800"></p>' % banner_image_url, unsafe_allow_html=True)
-
-
-# 미리 학습된 가중치 로드 (CPU로 매핑)
-weights = torch.load('/Users/imhogyun/my_project/streamit_web_deploy/president_model.pt', map_location=torch.device('cpu'))
+# 모델 파일의 경로를 설정 (로컬 PC에서 모델 파일을 저장한 경로)
+model_file_path = '/Users/imhogyun/my_project/streamit_web_deploy/last_model_eff.pt'  # 여기에 모델 파일의 경로를 지정하세요
 
 # 모델 초기화 및 가중치 적용 (예: 'efficientnet-b0')
 model = EfficientNet.from_name('efficientnet-b0')
-model.load_state_dict(weights)
+model.load_state_dict(torch.load(model_file_path, map_location=torch.device('cpu')))
 model.eval()
 
 st.title('Custom EfficientNet Image Classifier')
-
 
 predicted_class_name = ""  # 변수 초기화
 
@@ -54,7 +34,7 @@ if uploaded_file is not None:
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
 
-        input_tensor = preprocess(image)  # 이미지 -> 텐서 변환 
+        input_tensor = preprocess(image)  # 이미지 -> 텐서 변환
         input_batch = input_tensor.unsqueeze(0)  # 배치 차원 추가
 
         with torch.no_grad():
@@ -62,21 +42,41 @@ if uploaded_file is not None:
 
         _, predicted_idx = torch.max(prediction, 1)
 
-        class_names = ['XC60', '티구안', '티볼리', '팰리세이드', '포터2', '프리우스'] # 실제 사용할 때는 여러분의 클래스 이름으로 변경
+        class_names = ["TIVOLI", "PALISADE", "PORTER2", "I30", "G4 REXTON", "K3", "K5", "K7", "K9", "QM3", "QM6", "SM3",
+                        "SM5", "SM6", "SM7", "XM3", "GRANDEUR", "NIRO", "DAMAS", "RAY", "REXTON SPORT", "MAXCRUZ",
+                        "MORNING", "MOHAVE", "VENUE", "VELOSTER", "BONGO3", "SELTOS", "STAREX", "STONIC", "STINGER",
+                        "SPORTAGE", "SANTAFE", "SONATA", "SORENTO", "SOUL", "AVANTE", "IONIQ", "ACCENT", "CARNIVAL",
+                        "KONA", "KORANDO", "KORANDO TURISMO", "KORANDO C", "TUCSON", "CLIO"]
+        # 실제 사용할 때는 여러분의 클래스 이름으로 변경
 
         predicted_class_name = class_names[predicted_idx.item()]
 
         st.write(f'차종: {predicted_class_name}')
 
-data = pd.read_csv('/Users/imhogyun/my_project/streamit_web_deploy/car_info (1).csv')
+# DBeaverFH 데이터베이스 연결 설정
+def create_conn():
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="zasx1452",
+        database="sys"
+    )
+    return conn
 
+def run_query(query):
+    conn = create_conn()
+    df = pd.read_sql_query(query,conn)
+    return df
+query = f"select * from car_infos where 차종='{predicted_class_name}'"
 # 예측된 차종에 해당하는 데이터 필터링
-predicted_data = data[data['차종'] == predicted_class_name]
+# predicted_data = df[df['차종'] == predicted_class_name]
+# query = "select * from car_infos where 차종='predicted_class_name'"
+df1 = run_query(query)
 
-# 필요한 정보 출력
+# 필요한 정보 출력ß
 # st.write(f'자동차 제원: {predicted_data}')
-st.dataframe(predicted_data)
-
+# st.dataframe(predicted_data)
+st.dataframe(df1)
 image_url = "https://ifh.cc/g/vbmRgR.jpg"
 # 이미지를 sidebar에 추가
 st.sidebar.image(image_url, width=200)
