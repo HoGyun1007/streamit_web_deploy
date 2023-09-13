@@ -56,7 +56,8 @@ if uploaded_file is not None:
 # DBeaverFH 데이터베이스 연결 설정
 def create_conn():
     conn = mysql.connector.connect(
-        host="localhost:3306",
+    #    host="localhost:3306",
+        host='222.112.208.80:3306',
         user="root",
         password="zasx1452",
         database="sys"
