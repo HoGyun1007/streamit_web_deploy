@@ -8,7 +8,7 @@ import os
 import mysql.connector
 
 # 모델 파일의 경로를 설정 (로컬 PC에서 모델 파일을 저장한 경로)
-model_file_path = '/Users/imhogyun/my_project/streamit_web_deploy/last_model_eff.pt'  # 여기에 모델 파일의 경로를 지정하세요
+model_file_path = 'last_model_eff.pt'  # 여기에 모델 파일의 경로를 지정하세요
 
 # 모델 초기화 및 가중치 적용 (예: 'efficientnet-b0')
 model = EfficientNet.from_name('efficientnet-b0')
