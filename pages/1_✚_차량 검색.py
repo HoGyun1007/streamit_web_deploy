@@ -57,7 +57,8 @@ if uploaded_file is not None:
 def create_conn():
     conn = mysql.connector.connect(
     #    host="localhost:3306",
-        host='222.112.208.80:3306',
+        host='222.112.208.80',
+        port='3306',
         user="root",
         password="zasx1452",
         database="sys"
