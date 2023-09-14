@@ -6,4 +6,4 @@ streamlit==1.23.1
 streamlit_agraph==0.0.45
 torch==1.13.1
 torchvision==0.14.1
-mysql-connector-python
+mysql-connector-python == 8.0.33
